@@ -1,3 +1,4 @@
+import validVersion from './lib/esm-semver/functions/valid.js';
 
 function isValidId(id) {
 	if (typeof id !== 'string') {
@@ -10,16 +11,24 @@ function isValidId(id) {
 export class Package {
 	/**
 	 * @private
-	 * @param {string} manifest 
+	 * @param {{id: string, version: string}} manifest 
 	 * @param {string} folderName
-	 * @returns
+	 * @returns {{id}}
 	 */
-	static async loadCCMod(manifest) {
+	static async validateCCMod(manifest) {
 		const issues = [];
-		if (!isValidId(manifest.id)) {
+		let id = manifest.id;
+		if (!isValidId(id)) {
+			id = 'a-mod';
 			issues.push('id does not match /^[a-zA-Z0-9_-]+$/');
 		}
-		const id = manifest.id;
+
+		let version = manifest.version;
+		if (!validVersion(version)) {
+			version = '0.0.0';
+			issues.push('invalid version detected');
+		}
+
 		return {
 			id,
 			issues,

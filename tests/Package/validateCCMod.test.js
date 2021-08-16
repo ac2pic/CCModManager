@@ -41,6 +41,32 @@ describe('Package.validateCCMod - returned id property', function() {
         assert.strictEqual(manifest.issues.length, 1);
         assert.strictEqual(manifest.issues[0], 'id does not match /^[a-zA-Z0-9_-]+$/');
     });
-    
+
+    it('should be reported as broken if version is not a string', async () => {
+        const testManifest = ManifestHelper.copy(false);
+        testManifest.version = {};
+        const manifest = await Package.validateCCMod(testManifest, 'a-mod');
+        assert.strictEqual(Array.isArray(manifest.issues),true, 'manifest.issues is not an array!');
+        assert.strictEqual(manifest.issues.length, 1);
+        assert.strictEqual(manifest.issues[0], 'invalid version detected');
+    });
+
+    it('should be reported as broken if version is not in the correct format', async () => {
+        const testManifest = ManifestHelper.copy(false);
+        testManifest.version = 'a.b.c';
+        const manifest = await Package.validateCCMod(testManifest, 'a-mod');
+        assert.strictEqual(Array.isArray(manifest.issues),true, 'manifest.issues is not an array!');
+        assert.strictEqual(manifest.issues.length, 1);
+        assert.strictEqual(manifest.issues[0], 'invalid version detected');
+    });
+
+    it('should not be reported as broken if version is valid', async () => {
+        const testManifest = ManifestHelper.copy(false);
+        testManifest.version = '1.0.0';
+        const manifest = await Package.validateCCMod(testManifest, 'a-mod');
+        assert.strictEqual(Array.isArray(manifest.issues),true, 'manifest.issues is not an array!');
+        assert.strictEqual(manifest.issues.length, 0);
+    });
+
 });
 
